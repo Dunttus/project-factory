@@ -12,9 +12,49 @@ A 100% local, zero-dependency Python application generator powered by **Ollama**
   1. **Desktop GUI (`app_gui.py`):** Native `tkinter` / `ttk` desktop window.
   2. **Full-Stack Web Dashboard (`web_app.py`):** Local Python `http.server` with JSON API endpoints and an embedded HTML/CSS/JS frontend.
   3. **Interactive CLI (`cli_app.py`):** Structured terminal menu interface.
-- **Cross-File AST Contract Verification:** Automatically extracts public function/class signatures from `backend.py` and verifies that the generated frontend only calls symbols that actually exist.
+- **Cross-File AST Contract Verification:** Automatically extracts public function and class signatures from `backend.py` and verifies that the generated frontend only calls symbols that actually exist.
 - **Multi-Turn Self-Healing & Smoke Testing:** Validates syntax with `ast.parse()` and optionally runs `backend._self_test()` in a sandboxed subprocess on your host OS (Windows, Linux, or macOS), feeding tracebacks into a multi-turn repair loop.
 - **AI Prompt Optimizer:** Optional pre-processing step that expands brief ideas into strict technical specifications before code generation.
+
+---
+
+## How the Generation Pipeline Works
+
+```text
+[ User Input (Studio GUI / --cli) ] ──> [ Host OS Auto-Detection (Win / Linux / macOS) ]
+                                                        │
+                                                        ▼
+                                        [ AI Prompt Optimizer ] (Optional)
+                                                        │
+                                                        ▼
+                                        [ Stage 1: Generate backend.py ]
+                                                        │
+                                                        ▼
+                                  ┌───> [ AST Syntax & Stdlib Whitelist Check ]
+                                  │                     │
+      Multi-Turn Auto-Repair      │                     ▼
+        (Up to 4 Retries)         │     [ Subprocess _self_test() Smoke Run ] (Optional)
+                                  │                     │
+                                  └─────── Fail ────────┼─────── Pass
+                                                        │
+                                                        ▼
+                                        [ AST Public API Contract Extraction ]
+                                        (Extracts exact functions & classes)
+                                                        │
+                                                        ▼
+                                        [ Stage 2: Generate Frontend UI ]
+                                        (app_gui.py / web_app.py / cli_app.py)
+                                                        │
+                                                        ▼
+                                  ┌───> [ Cross-File AST Symbol Verification ]
+                                  │     (Verifies every backend.<func> exists)
+      Multi-Turn Auto-Repair      │                     │
+        (Up to 4 Retries)         └─────── Fail ────────┼─────── Pass
+                                                        │
+                                                        ▼
+                                        [ Saved to ./projects/<project_name>/ ]
+                                        (One-Click Launch from Studio GUI)
+```
 
 ---
 
@@ -37,8 +77,8 @@ sudo apt update && sudo apt install -y python3 python3-tk
 ollama pull qwen2.5-coder:14b
 
 # 3. Clone the repository
-git clone [https://github.com/Dunttus/agent-team-2.git](https://github.com/Dunttus/agent-team-2.git)
-cd agent-team-2
+git clone [https://github.com/Dunttus/project-factory.git](https://github.com/Dunttus/project-factory.git)
+cd project-factory
 ```
 
 ---
@@ -87,7 +127,7 @@ project_factory.py             # AI Project Factory Studio (GUI + CLI)
 
 ## 🤝 Credits & License
 
-- **Project Creator:** Dunttus
+- **Project Creator:** [Dunttus](https://github.com/Dunttus/project-factory)
 - **AI Assistance:** Built with Gemini
 - **Ecosystem:** Powered by [Ollama](https://ollama.com/) & [Qwen 2.5 Coder](https://github.com/QwenLM/Qwen2.5-Coder)
 - **License:** [GPL-3.0 License](LICENSE)
